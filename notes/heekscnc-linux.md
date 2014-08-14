@@ -9,7 +9,7 @@ Fix error about missing `libheekstinyxml.so.1.0.0`:
 
 `heekscad: error while loading shared libraries: libheekstinyxml.so.1.0.0: cannot open shared object file: No such file or directory`
 
-Add this to your `~/.bashrc` or
+Add this to your `~/.bashrc` or `/etc/bash.bashrc`:
 
 
 ```
