@@ -1,0 +1,49 @@
+( simplification of http://www.linuxcnc.org/index.php/english/forum/subroutine-library/27179-millmultiple3 )
+
+G17 ( xy plane )
+G21 ( mm )
+G40 ( cancel cutter radius compensation )
+G49 ( cancel tool length offset )
+G90 ( absolute distance mode )
+G94 ( units/min feed rate )
+G64 P.005 Q.005 ( set path tolerance )
+
+#<Copies> = 18                      ( 18 copies )
+#<X_offset> = [-267 / #<Copies>]    ( Measure total length, devide by copies )
+
+#<Z_travel_pos> = 5.00
+#<Temp_coord_n> = 2
+
+#<X_TOT> = 0 ( keep track of where we are )
+
+( go to start position )
+G54                                 ( main coordinate system )
+G0 X0 Y0
+G0 Z#<Z_travel_pos>
+
+G10 L20 P#<Temp_Coord_n> X0 Y0 Z#<Z_travel_pos> (set Temp cord)
+G55                                 ( part/temp coordinate system )
+
+o100 while [#<Copies> gt 0]
+    G0 Z#<Z_travel_pos>
+
+    ( call subroutine defined in a file 101.ngc, placed in path defined by PROGRAM_PREFIX )
+    ( wrap code in 'o101 sub' and 'o101 endsub' )
+    ( Make sure to remove 'M2' from subroutine file )
+    o101 call
+
+    (increment X for next part.)
+    o102 if [#<Copies> gt 1]
+        G54
+        G0 Z#<Z_travel_pos>
+
+        #<X_TOT> = [#<X_TOT> + #<X_Offset>]
+        G0 X#<X_TOT> Y0
+
+        G55
+        G10 L20 P#<Temp_Coord_n> X0 Y0 (set X and Y cord)
+    o102 endif
+
+    #<Copies> = [#<Copies> - 1]
+o100 endwhile
+M2
